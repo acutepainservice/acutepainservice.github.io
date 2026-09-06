@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b5cad">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="APS Rounds">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>APS Rounds</title>
+<style>
+:root{
+  --bg:#f5f7fb; --surface:#fff; --surface2:#eef3f8; --text:#15202b; --muted:#607080;
+  --line:#dbe3ec; --primary:#0b5cad; --primary2:#e7f1fc; --good:#137a4b; --goodbg:#e8f6ef;
+  --warn:#946200; --warnbg:#fff5d8; --danger:#b42318; --dangerbg:#feeceb; --shadow:0 6px 22px rgba(25,45,70,.08);
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+body{margin:0;min-height:100vh;background:var(--bg);padding-bottom:calc(78px + env(safe-area-inset-bottom))}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.appbar{position:sticky;top:0;z-index:30;background:rgba(245,247,251,.94);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top)) 16px 10px}
+.appbar-inner{max-width:1180px;margin:auto;display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.brandmark{width:42px;height:42px;border-radius:13px;background:var(--primary);color:#fff;display:grid;place-items:center;font-weight:800;letter-spacing:.3px}
+.brand h1{font-size:18px;line-height:1.1;margin:0}.brand small{display:block;color:var(--muted);margin-top:3px}
+.iconbtn{border:1px solid var(--line);background:var(--surface);border-radius:12px;min-width:42px;height:42px;padding:0 12px;color:var(--text)}
+main{max-width:1180px;margin:0 auto;padding:16px}
+.view{display:none}.view.active{display:block}
+.hero{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.pad{padding:16px}
+.progress-card{display:grid;gap:12px}
+.progress-row{display:flex;gap:12px;align-items:flex-end;justify-content:space-between}
+.big{font-size:29px;font-weight:800;letter-spacing:-.6px}.muted{color:var(--muted)}.small{font-size:12px}
+.progressbar{height:10px;background:var(--surface2);border-radius:999px;overflow:hidden}.progressbar>div{height:100%;background:var(--primary);width:0}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{background:var(--surface2);padding:10px;border-radius:13px}.stat strong{font-size:20px;display:block}
+.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.segment{display:inline-flex;background:var(--surface2);border-radius:12px;padding:3px;gap:2px}
+.segment button{border:0;background:transparent;padding:8px 11px;border-radius:9px;color:var(--muted);font-weight:650}
+.segment button.active{background:var(--surface);color:var(--primary);box-shadow:0 2px 7px rgba(20,40,60,.08)}
+.searchbox{position:relative;flex:1;min-width:210px}.searchbox input{width:100%;height:44px;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:0 12px 0 38px;color:var(--text)}
+.searchbox span{position:absolute;left:13px;top:11px;color:var(--muted)}
+.btn{border:0;border-radius:12px;padding:11px 14px;font-weight:700;background:var(--primary);color:#fff;min-height:44px}
+.btn.secondary{background:var(--surface);color:var(--primary);border:1px solid var(--line)}
+.btn.ghost{background:transparent;color:var(--primary);border:1px dashed var(--line)}
+.btn.danger{background:var(--danger)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.ward{margin:18px 0}.wardhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 2px 8px}.wardhead h3{margin:0;font-size:15px;letter-spacing:.2px}.count{background:var(--surface2);border-radius:999px;padding:3px 8px;font-size:12px;color:var(--muted)}
+.patient-grid{display:grid;grid-template-columns:1fr;gap:9px}
+.patient-card{padding:14px;display:grid;gap:9px;cursor:pointer}
+.patient-card:active{transform:scale(.995)}
+.patient-top{display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.patient-name{font-weight:800;font-size:16px;line-height:1.15}.patient-meta{font-size:13px;color:var(--muted);margin-top:3px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:11px;font-weight:750;background:var(--surface2);color:var(--muted)}
+.chip.good{background:var(--goodbg);color:var(--good)}.chip.danger{background:var(--dangerbg);color:var(--danger)}.chip.warn{background:var(--warnbg);color:var(--warn)}
+.remark{font-size:13px;color:#344554;background:var(--surface2);padding:9px 10px;border-radius:11px;white-space:pre-wrap}
+.compact-list{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.compact-row{display:grid;grid-template-columns:70px minmax(0,1fr) auto;gap:10px;padding:11px 12px;border-bottom:1px solid var(--line);align-items:center;cursor:pointer}
+.compact-row:last-child{border-bottom:0}.compact-row .wardlabel{font-weight:800;color:var(--primary);font-size:12px}.compact-row .n{font-weight:760;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.compact-row .m{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+table{width:100%;border-collapse:collapse}.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;font-size:13px;white-space:nowrap}th{background:var(--surface2);font-size:12px;color:var(--muted);position:sticky;top:0}
+.empty{padding:32px 14px;text-align:center;color:var(--muted)}
+.section-title{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:4px 0 12px}.section-title h2{margin:0;font-size:21px}.section-title p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.form-card{padding:16px}.form-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.field label{display:block;font-size:12px;font-weight:750;color:#485967;margin:0 0 6px}.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:12px;padding:11px 12px;outline:none;min-height:44px}.field textarea{min-height:90px;resize:vertical}.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary2)}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+.bottomnav{position:fixed;bottom:0;left:0;right:0;z-index:40;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:6px 6px calc(6px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr);gap:2px}
+.navbtn{border:0;background:transparent;color:var(--muted);padding:6px 2px;border-radius:11px;font-size:10px;font-weight:650;min-height:54px}.navbtn .ico{display:block;font-size:20px;line-height:24px}.navbtn.active{color:var(--primary);background:var(--primary2)}
+dialog{border:0;padding:0;border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.25);width:min(760px,calc(100% - 24px));max-height:calc(100vh - 24px);background:var(--surface);color:var(--text)}
+dialog::backdrop{background:rgba(8,18,28,.55);backdrop-filter:blur(2px)}
+.modalhead{position:sticky;top:0;z-index:4;padding:14px 16px;background:var(--surface);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}.modalhead h3{margin:0;flex:1}.modalbody{padding:16px;overflow:auto}.detail-head{padding-bottom:13px;border-bottom:1px solid var(--line);margin-bottom:13px}.detail-head h2{margin:0 0 4px;font-size:23px}.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.detail-item{background:var(--surface2);border-radius:12px;padding:10px}.detail-item span{display:block;color:var(--muted);font-size:11px;margin-bottom:3px}.detail-item strong{font-size:13px}
+.status-choice{display:grid;grid-template-columns:1fr 1fr;gap:8px}.status-choice label{border:1px solid var(--line);border-radius:12px;padding:11px;display:flex;gap:8px;align-items:center;font-weight:700}.status-choice label:has(input:checked){border-color:var(--primary);background:var(--primary2)}
+.toast{position:fixed;left:50%;bottom:92px;transform:translateX(-50%) translateY(20px);background:#18232e;color:#fff;padding:10px 14px;border-radius:12px;z-index:100;opacity:0;pointer-events:none;transition:.2s;max-width:calc(100% - 28px);text-align:center;font-size:13px}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.gate{position:fixed;inset:0;background:linear-gradient(180deg,#eaf3fc,#f7f9fc 55%);z-index:200;display:grid;place-items:center;padding:20px}.gatebox{width:min(430px,100%);background:#fff;border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:0 20px 60px rgba(20,50,80,.12)}.gate-logo{width:58px;height:58px;border-radius:18px;background:var(--primary);color:#fff;display:grid;place-items:center;font-weight:900;font-size:21px;margin-bottom:14px}.gate h2{margin:0 0 5px}.gate p{margin:0 0 16px;color:var(--muted);font-size:13px}.gate .field{margin:10px 0}.gate .btn{width:100%;margin-top:6px}.gate-note{font-size:11px;color:var(--muted);margin-top:12px;line-height:1.4}
+.tool-grid{display:grid;grid-template-columns:1fr;gap:12px}
+.tool-card{padding:0;overflow:hidden}.tool-card summary{padding:15px 16px;font-weight:800;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between}.tool-card summary::-webkit-details-marker{display:none}.tool-card summary:after{content:'+';color:var(--primary);font-size:20px}.tool-card[open] summary:after{content:'−'}.tool-content{padding:0 16px 16px;border-top:1px solid var(--line)}
+.calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.result{background:var(--primary2);color:#0a477f;border-radius:13px;padding:12px;margin-top:10px;font-weight:750;min-height:48px}.note{font-size:11px;color:var(--muted);line-height:1.45;margin-top:8px}
+.scale-launches{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.scale-screen{position:fixed;inset:0;background:#f7f9fc;z-index:250;display:none;flex-direction:column;color:#10202d}.scale-screen.open{display:flex}.scale-head{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);background:#fff}.scale-head h2{margin:0;flex:1;font-size:18px}.scale-body{flex:1;overflow:auto;padding:14px;display:grid;place-items:center}
+.nrs{display:grid;grid-template-columns:repeat(11,minmax(58px,1fr));gap:8px;width:100%;min-width:760px}.nrs button{border:1px solid var(--line);background:#fff;border-radius:14px;min-height:88px;font-size:28px;font-weight:850}.nrs button.selected{border-color:var(--primary);background:var(--primary2);color:var(--primary)}
+.faces{display:grid;grid-template-columns:repeat(6,minmax(110px,1fr));gap:10px;min-width:760px;width:100%}.facebtn{border:1px solid var(--line);background:#fff;border-radius:18px;padding:12px;min-height:145px}.faceemoji{font-size:52px;display:block}.facebtn strong{font-size:22px}.facebtn.selected{border-color:var(--primary);background:var(--primary2)}
+.flacc-table{min-width:760px}.flacc-row{display:grid;grid-template-columns:105px repeat(3,1fr);gap:7px;margin-bottom:7px}.flacc-label{display:flex;align-items:center;font-weight:800}.flacc-option{border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px;font-size:12px;min-height:72px;text-align:left}.flacc-option.selected{border-color:var(--primary);background:var(--primary2)}.flacc-total{font-size:26px;font-weight:850;color:var(--primary);text-align:center;margin-top:10px}
+.med-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.med-toolbar .searchbox{min-width:230px}.med-toolbar select{height:44px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:0 10px}
+.med-card{margin-bottom:9px;overflow:hidden}.med-card summary{padding:13px 14px;cursor:pointer;list-style:none;display:flex;gap:10px;align-items:center}.med-card summary::-webkit-details-marker{display:none}.med-card summary .medname{font-weight:850;flex:1}.source-block{padding:13px 14px;border-top:1px solid var(--line)}.source-block h4{margin:0 0 8px}.dose-entry{background:var(--surface2);border-radius:12px;padding:10px;margin:8px 0}.dose-entry strong{display:block;font-size:12px;margin-bottom:5px}.dose-entry div{white-space:pre-wrap;font-size:12px;line-height:1.45}.source-missing{font-size:12px;color:var(--muted);font-style:italic}
+.warning{background:var(--warnbg);color:#604300;border:1px solid #efd48d;padding:11px 12px;border-radius:13px;font-size:12px;line-height:1.45;margin-bottom:12px}
+
+.field-help{font-size:11px;color:var(--muted);margin:-2px 0 7px;line-height:1.4}
+.fixed-status{min-height:44px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:9px;background:var(--surface2)}
+.evidence-details{margin-top:11px;border-top:1px solid var(--line);padding-top:8px}
+.evidence-details>summary{cursor:pointer;color:var(--primary);font-size:12px;font-weight:800;list-style:none;padding:7px 0;display:block}
+.evidence-details>summary::-webkit-details-marker{display:none}
+.evidence-details>summary:after{content:' +';font-weight:900}
+.evidence-details[open]>summary:after{content:' −'}
+.tool-card[open] .evidence-details:not([open])>summary:after{content:' +'}
+.tool-card[open] .evidence-details[open]>summary:after{content:' −'}
+.evidence-body{font-size:11.5px;line-height:1.55;color:var(--muted);padding-top:7px}
+.evidence-body p{margin:7px 0}.evidence-body a{color:var(--primary);font-weight:650}
+@media(min-width:700px){
+  main{padding:20px}.hero{grid-template-columns:1.5fr 1fr}.patient-grid{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:repeat(2,1fr)}.form-grid .span2{grid-column:span 2}.tool-grid{grid-template-columns:repeat(2,1fr)}.bottomnav{width:520px;left:50%;transform:translateX(-50%);bottom:12px;border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);padding:5px}.toast{bottom:88px}
+}
+@media(min-width:1020px){.patient-grid{grid-template-columns:repeat(3,1fr)}.hero{grid-template-columns:1fr 1fr}.tool-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:520px){
+  main{padding:12px}.appbar{padding-left:12px;padding-right:12px}.brandmark{width:38px;height:38px}.brand h1{font-size:17px}.stats{gap:6px}.stat{padding:9px}.stat strong{font-size:18px}.detail-grid{grid-template-columns:1fr}.status-choice{grid-template-columns:1fr}.calc-grid{grid-template-columns:1fr}.compact-row{grid-template-columns:56px minmax(0,1fr) auto;padding:10px 9px}
+  dialog{width:100%;max-height:100vh;height:100vh;border-radius:0}.modalbody{padding-bottom:90px}
+}
+</style>
+</head>
+<body>
+<div id="gate" class="gate">
+  <div class="gatebox">
+    <div class="gate-logo">APS</div>
+    <h2>APS Rounds</h2>
+    <p>Live census, round tracker, remarks/status updates and bedside tools.</p>
+    <div class="field">
+      <label>APS password</label>
+      <input id="passwordInput" type="password" autocomplete="current-password" placeholder="Enter password">
+    </div>
+    <button class="btn" id="loginBtn">Unlock APS Rounds</button>
+    <div class="gate-note">The shared password is checked by the Apps Script backend. Patient data are not stored in the offline app cache. Use only on devices and networks permitted by your institution.</div>
+  </div>
+</div>
+
+<header class="appbar">
+  <div class="appbar-inner">
+    <div class="brand">
+      <div class="brandmark">APS</div>
+      <div><h1 id="appTitle">APS Rounds</h1><small id="appSubtitle">Acute Pain Service</small></div>
+    </div>
+    <button class="iconbtn" id="refreshBtn" title="Refresh">↻</button>
+    <button class="iconbtn" id="settingsBtn" title="Settings">⚙</button>
+  </div>
+</header>
+
+<main>
+  <section id="viewToday" class="view active">
+    <div class="hero">
+      <div class="card pad progress-card">
+        <div class="progress-row">
+          <div><div class="muted small">TODAY'S ROUND</div><div class="big"><span id="progDone">0</span>/<span id="progTotal">0</span></div></div>
+          <button class="btn" id="nextPendingBtn">Next pending</button>
+        </div>
+        <div class="progressbar"><div id="progressFill"></div></div>
+        <div class="stats">
+          <div class="stat"><strong id="statActive">0</strong><span class="small muted">Current APS</span></div>
+          <div class="stat"><strong id="statPending">0</strong><span class="small muted">Pending</span></div>
+          <div class="stat"><strong id="statDischarged">0</strong><span class="small muted">Discharged today</span></div>
+        </div>
+      </div>
+      <div class="card pad">
+        <div class="muted small">DAILY LIST</div>
+        <h3 style="margin:5px 0 10px">Responsive APS census</h3>
+        <p class="muted" style="font-size:13px;margin:0 0 12px">This is the live mobile view. The existing 7 AM Google Doc remains available as the printable/archive copy.</p>
+        <button class="btn secondary" id="openDocBtn" disabled>Open today's Google Doc</button>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="segment" id="viewModeSeg">
+        <button data-mode="census" class="active">Census</button>
+        <button data-mode="cards">Cards</button>
+        <button data-mode="list">List</button>
+      </div>
+      <div class="segment" id="roundFilterSeg">
+        <button data-filter="all" class="active">All</button>
+        <button data-filter="pending">Pending</button>
+        <button data-filter="done">Done</button>
+      </div>
+      <div class="searchbox"><span>⌕</span><input id="todaySearch" type="search" placeholder="Search name, RN, ward, diagnosis, mode..."></div>
+    </div>
+    <div id="todayContent"></div>
+  </section>
+
+  <section id="viewPatients" class="view">
+    <div class="section-title"><div><h2>Current APS patients</h2><p>Current patients with Status = New patient or Continue review in the master Form Responses sheet.</p></div><button class="btn secondary" id="patientsRefresh">Refresh</button></div>
+    <div class="toolbar"><div class="searchbox"><span>⌕</span><input id="patientSearch" type="search" placeholder="Search current APS patients"></div></div>
+    <div id="patientsContent"></div>
+  </section>
+
+  <section id="viewRegister" class="view">
+    <div class="section-title"><div><h2>Register APS patient</h2><p>Follows the APS Patient Registration Form and writes directly into Form Responses 1. Status is automatically set to <b>New patient</b>.</p></div></div>
+    <form id="registrationForm" class="card form-card">
+      <div class="form-grid">
+        <div class="field span2"><label>Patient's Name *</label><input name="name" required autocomplete="off"></div>
+        <div class="field"><label>RN *</label><input name="rn" required autocomplete="off"></div>
+        <div class="field"><label>Age *</label><input name="age" required inputmode="numeric" type="number" min="0" step="1"></div>
+        <div class="field"><label>Sex *</label><select name="sex" required><option value="" disabled selected>Select</option><option>Male</option><option>Female</option></select></div>
+        <div class="field"><label>Race *</label><select name="race" id="raceSelect" required><option value="" disabled selected>Select</option><option>Malay</option><option>Chinese</option><option>Indian</option><option value="__other__">Other</option></select><input id="raceOther" class="other-input hidden" type="text" placeholder="Specify race" style="margin-top:8px"></div>
+        <div class="field span2"><label>Ward *</label><select name="ward" id="wardSelect" required>
+          <option value="" disabled selected>Select ward</option>
+          <option>1 Berlian (Labour Room)</option><option>1 Mutiara</option><option>1 Utara</option><option>1 Selatan</option><option>1 Timur Depan</option>
+          <option>2 Akik</option><option>2 Baiduri</option><option>2 Topaz</option><option>2 Delima</option><option>2 Intan</option><option>2 Zamrud</option><option>2 Utara</option><option>2 Selatan</option><option>2 Timur Depan</option>
+          <option>3 Utara</option><option>3 Selatan</option>
+          <option>4 Utara</option><option>4 Selatan</option><option>4 Timur Depan</option><option>4 Timur Belakang (URK)</option>
+          <option>5 Utara</option><option>5 Selatan</option><option>6 Utara</option><option>6 Selatan</option>
+          <option>7 Utara</option><option>7 Selatan</option><option>7 Timur</option>
+          <option>8 Selatan</option><option>8 Timur Depan</option><option>8 Timur Belakang</option>
+          <option>SICU</option><option>SHDU</option><option>TICU</option><option>Trauma HDU</option><option>USAINS (Wad Eksekutif)</option><option>USAINS (2 AKIK)</option>
+          <option value="__other__">Other</option>
+        </select><input id="wardOther" class="other-input hidden" type="text" placeholder="Specify ward" style="margin-top:8px"></div>
+        <div class="field span2"><label>Diagnosis *</label><textarea name="diagnosis" required></textarea></div>
+        <div class="field span2"><label>Operation</label><textarea name="operation"></textarea></div>
+        <div class="field span2"><label>Mode *</label><div class="field-help">If chronic pain patient, please list the analgesics.</div><select name="mode" id="modeSelect" required><option value="" disabled selected>Select mode</option><option>PCA Morphine</option><option>PCA Fentanyl</option><option>CMI</option><option>ITM</option><option>Epidural Infusion</option><option>Epidural Morphine</option><option>Fentanyl Patch</option><option>Ketamine Infusion</option><option value="__other__">Other</option></select><input id="modeOther" class="other-input hidden" type="text" placeholder="Specify mode / analgesics" style="margin-top:8px"></div>
+        <div class="field"><label>Date Commenced *</label><input name="dateCommenced" required type="date"></div>
+        <div class="field"><label>Doctor's name *</label><input name="doctorName" required autocomplete="off"></div>
+        <div class="field span2"><label>Remark</label><textarea name="remark"></textarea></div>
+        <div class="field span2"><label>Status *</label><div class="fixed-status"><span class="chip warn">New patient</span><span class="small muted">Automatically assigned on registration.</span></div></div>
+      </div>
+      <div class="form-actions"><button type="reset" class="btn secondary">Clear</button><button type="submit" class="btn">Register patient</button></div>
+    </form>
+  </section>
+
+  <section id="viewTools" class="view">
+    <div class="section-title"><div><h2>APS Tools</h2><p>Pain assessment, opioid equivalence and evidence-based bedside calculations.</p></div></div>
+    <div class="warning"><b>Clinical support only.</b> Calculator outputs are estimates. Confirm indication, units, steady-state assumptions, patient-specific factors and the medicine's current product information/local protocol before acting on a result.</div>
+    <div class="scale-launches">
+      <button class="btn secondary" data-scale="nrs">NRS 0–10</button>
+      <button class="btn secondary" data-scale="faces">Faces scale</button>
+      <button class="btn secondary" data-scale="flacc">FLACC score</button>
+      <button class="btn secondary" id="orientationInfo">Landscape assessment</button>
+    </div>
+    <div class="tool-grid" style="margin-top:12px">
+      <details class="card tool-card" open>
+        <summary>Opioid conversion / OME</summary>
+        <div class="tool-content">
+          <div class="calc-grid">
+            <div class="field"><label>From oral opioid</label><select id="opFrom"></select></div>
+            <div class="field"><label>Total dose / 24 h (mg)</label><input id="opDose" inputmode="decimal" type="number" min="0" step="any"></div>
+            <div class="field"><label>To oral opioid</label><select id="opTo"></select></div>
+            <div class="field"><label>Safety reduction for switch</label><select id="opReduction"><option value="0">None (equivalent only)</option><option value="0.25" selected>25%</option><option value="0.5">50%</option></select></div>
+          </div>
+          <button class="btn" id="opCalc" style="margin-top:10px">Calculate</button>
+          <div class="result" id="opResult">Enter a 24-hour dose.</div>
+          <details class="evidence-details"><summary>Formula, clinical notes & references</summary><div class="evidence-body">
+            <p><b>Method:</b> oral morphine equivalent (OME) = 24-hour opioid dose × approximate oral potency relative to morphine. Target opioid dose = OME ÷ target potency.</p>
+            <p>Equianalgesic tables are approximate. When switching between different opioids, the Faculty of Pain Medicine advises an individualised reduction from the calculated equianalgesic dose, commonly around 25–50%; use at least 50% in high-dose, frail/elderly or toxicity-prone situations. Methadone is deliberately excluded because conversion is nonlinear.</p>
+            <p><b>Transdermal reference:</b> fentanyl 12/25/50/75/100 mcg/h ≈ oral morphine 30/60/120/180/240 mg/day. Weekly buprenorphine 5/10/20 mcg/h ≈ oral morphine 12/24/48 mg/day.</p>
+            <p><a href="https://fpm.ac.uk/opioids-aware-structured-approach-opioid-prescribing/dose-equivalents-and-changing-opioids" target="_blank" rel="noopener">Faculty of Pain Medicine — Dose equivalents and changing opioids</a></p>
+          </div></details>
+        </div>
+      </details>
+
+      <details class="card tool-card">
+        <summary>Body Mass Index (BMI)</summary><div class="tool-content">
+          <div class="calc-grid"><div class="field"><label>Weight (kg)</label><input id="bmiW" type="number" step="any"></div><div class="field"><label>Height (cm)</label><input id="bmiH" type="number" step="any"></div></div>
+          <button class="btn" id="bmiCalc" style="margin-top:10px">Calculate</button><div class="result" id="bmiResult">BMI = kg/m²</div>
+          <details class="evidence-details"><summary>Formula, clinical notes & references</summary><div class="evidence-body">
+            <p><b>Formula:</b> BMI = weight (kg) ÷ height² (m²).</p>
+            <p>BMI is a practical screening measure, not a direct measure of adiposity. Adult interpretation should account for age, muscle mass and ethnicity; paediatric BMI requires age- and sex-specific centiles/z-scores rather than adult cut-offs.</p>
+            <p><a href="https://www.who.int/news-room/fact-sheets/detail/obesity-and-overweight" target="_blank" rel="noopener">WHO — Obesity and overweight</a> · <a href="https://www.nice.org.uk/guidance/ng246/chapter/Identifying-and-assessing-overweight-obesity-and-central-adiposity" target="_blank" rel="noopener">NICE NG246 — BMI interpretation</a></p>
+          </div></details>
+        </div>
+      </details>
+
+      <details class="card tool-card">
+        <summary>Ideal Body Weight (IBW) — Devine</summary><div class="tool-content">
+          <div class="calc-grid"><div class="field"><label>Sex</label><select id="ibwSex"><option>Male</option><option>Female</option></select></div><div class="field"><label>Height (cm)</label><input id="ibwH" type="number" step="any"></div></div>
+          <button class="btn" id="ibwCalc" style="margin-top:10px">Calculate</button><div class="result" id="ibwResult">Ideal body weight</div>
+          <details class="evidence-details"><summary>Formula, clinical notes & references</summary><div class="evidence-body">
+            <p><b>Devine formula:</b> male = 50 kg + 2.3 kg per inch over 5 ft; female = 45.5 kg + 2.3 kg per inch over 5 ft.</p>
+            <p>IBW is a historical dosing scalar, not a physiologic measurement of lean mass. Drug-specific dosing guidance takes precedence. Values below 152.4 cm require particular caution because the original convention is based on height above 5 ft.</p>
+            <p><a href="https://pubmed.ncbi.nlm.nih.gov/10981254/" target="_blank" rel="noopener">Pai & Paloucek — Origin of the “ideal” body weight equations</a></p>
+          </div></details>
+        </div>
+      </details>
+
+      <details class="card tool-card">
+        <summary>Adjusted Body Weight (AjBW)</summary><div class="tool-content">
+          <div class="calc-grid"><div class="field"><label>Actual weight (kg)</label><input id="ajActual" type="number" step="any"></div><div class="field"><label>IBW (kg)</label><input id="ajIbw" type="number" step="any"></div></div>
+          <button class="btn" id="ajCalc" style="margin-top:10px">Calculate</button><div class="result" id="ajResult">AjBW = IBW + 0.4 × (actual − IBW)</div>
+          <details class="evidence-details"><summary>Formula, clinical notes & references</summary><div class="evidence-body">
+            <p><b>Formula used:</b> AjBW = IBW + 0.4 × (actual body weight − IBW).</p>
+            <p>The 0.4 correction factor is an empirical dosing convention used for selected drugs/populations, not a universal replacement for actual or ideal body weight. Always follow drug-specific obesity dosing guidance and therapeutic drug monitoring where applicable.</p>
+            <p><a href="https://pubmed.ncbi.nlm.nih.gov/22711238/" target="_blank" rel="noopener">Pai — Weight/BSA drug dosing limitations in obesity</a></p>
+          </div></details>
+        </div>
+      </details>
+
+      <details class="card tool-card">
+        <summary>Creatinine Clearance — Cockcroft–Gault</summary><div class="tool-content">
+          <div class="calc-grid">
+            <div class="field"><label>Age (years)</label><input id="cgAge" type="number" min="18"></div>
+            <div class="field"><label>Sex</label><select id="cgSex"><option>Male</option><option>Female</option></select></div>
+            <div class="field"><label>Weight used (kg)</label><input id="cgW" type="number" step="any"></div>
+            <div class="field"><label>Serum creatinine (µmol/L)</label><input id="cgCr" type="number" step="any"></div>
+          </div>
+          <button class="btn" id="cgCalc" style="margin-top:10px">Calculate</button><div class="result" id="cgResult">CrCl mL/min</div>
+          <details class="evidence-details"><summary>Formula, clinical notes & references</summary><div class="evidence-body">
+            <p><b>Formula:</b> male CrCl = (140 − age) × weight(kg) ÷ [72 × SCr(mg/dL)]; female result × 0.85. SCr mg/dL = SCr µmol/L ÷ 88.4.</p>
+            <p>Use the weight and kidney-function metric specified by the relevant drug label/local protocol. Current NIDDK guidance notes that FDA does not mandate one estimating equation for all drugs and newer, more accurate eGFR equations should be considered when possible. Cockcroft–Gault remains useful where a product label specifically bases dose adjustment on CrCl.</p>
+            <p><a href="https://www.niddk.nih.gov/research-funding/research-programs/kidney-clinical-research-epidemiology/laboratory/ckd-drug-dosing-providers" target="_blank" rel="noopener">NIDDK — Determining drug dosing in adults with CKD</a> · <a href="https://www.fda.gov/regulatory-information/search-fda-guidance-documents/pharmacokinetics-patients-impaired-renal-function-study-design-data-analysis-and-impact-dosing" target="_blank" rel="noopener">FDA 2024 renal-impairment PK guidance</a></p>
+          </div></details>
+        </div>
+      </details>
+
+      <details class="card tool-card">
+        <summary>Adult eGFR — CKD-EPI 2021</summary><div class="tool-content">
+          <div class="calc-grid"><div class="field"><label>Age (years, ≥18)</label><input id="ckdAge" type="number" min="18"></div><div class="field"><label>Sex</label><select id="ckdSex"><option>Male</option><option>Female</option></select></div><div class="field"><label>Serum creatinine (µmol/L)</label><input id="ckdCr" type="number" step="any"></div><div class="field"><label>Cystatin C (mg/L, optional)</label><input id="ckdCys" type="number" step="any" placeholder="If available"></div></div>
+          <button class="btn" id="ckdCalc" style="margin-top:10px">Calculate</button><div class="result" id="ckdResult">eGFR mL/min/1.73 m²</div>
+          <details class="evidence-details"><summary>Formula, recommendation & references</summary><div class="evidence-body">
+            <p><b>2021 CKD-EPI creatinine:</b> eGFR = 142 × min(SCr/κ,1)<sup>α</sup> × max(SCr/κ,1)<sup>−1.200</sup> × 0.9938<sup>Age</sup> × 1.012 if female; κ=0.7 female/0.9 male, α=−0.241 female/−0.302 male.</p>
+            <p><b>If cystatin C is entered:</b> the calculator also uses the 2021 CKD-EPI creatinine–cystatin C equation. Current NIDDK/KDIGO guidance prefers combined creatinine–cystatin C when available because it is more accurate, particularly near critical clinical/drug-dosing decision thresholds. Race coefficients are not used.</p>
+            <p>For drug dosing in markedly non-average body size, consider de-indexing eGFR: absolute GFR (mL/min) = indexed eGFR × BSA/1.73. Use the medicine's current label/local renal-dosing guidance.</p>
+            <p><a href="https://www.niddk.nih.gov/research-funding/research-programs/kidney-clinical-research-epidemiology/laboratory/glomerular-filtration-rate-equations/adults" target="_blank" rel="noopener">NIDDK — Adult eGFR equations</a> · <a href="https://kdigo.org/guidelines/ckd-evaluation-and-management/" target="_blank" rel="noopener">KDIGO 2024 CKD guideline</a></p>
+          </div></details>
+        </div>
+      </details>
+
+      <details class="card tool-card">
+        <summary>Paediatric renal function — CKiD U25 eGFR</summary><div class="tool-content">
+          <div class="calc-grid"><div class="field"><label>Age (years, 1–25)</label><input id="pedAge" type="number" min="1" max="25" step="any"></div><div class="field"><label>Sex</label><select id="pedSex"><option>Male</option><option>Female</option></select></div><div class="field"><label>Height (cm)</label><input id="pedH" type="number" step="any"></div><div class="field"><label>Serum creatinine (µmol/L)</label><input id="pedCr" type="number" step="any"></div></div>
+          <button class="btn" id="pedCalc" style="margin-top:10px">Calculate</button><div class="result" id="pedResult">eGFR mL/min/1.73 m²</div>
+          <details class="evidence-details"><summary>Formula, recommendation & references</summary><div class="evidence-body">
+            <p><b>CKiD U25 creatinine equation:</b> eGFR = κ × [height(m) ÷ SCr(mg/dL)], where κ varies by age and sex. SCr mg/dL = SCr µmol/L ÷ 88.4.</p>
+            <p>NIDDK currently describes CKiD U25 as the preferred paediatric calculator because it has less bias across a broader age range than the older 2009 bedside Schwartz equation. For ages 18–25, compare the CKiD U25 and adult CKD-EPI estimates. If cystatin C is available, combined creatinine–cystatin C estimation is more accurate.</p>
+            <p>This is an <b>eGFR estimate</b>, not measured creatinine clearance.</p>
+            <p><a href="https://www.niddk.nih.gov/research-funding/research-programs/kidney-clinical-research-epidemiology/laboratory/glomerular-filtration-rate-equations/children-adolescents-young-adults" target="_blank" rel="noopener">NIDDK — CKiD U25 equations</a></p>
+          </div></details>
+        </div>
+      </details>
+
+      <details class="card tool-card">
+        <summary>APS / catheter day</summary><div class="tool-content">
+          <div class="field" style="margin-top:12px"><label>Date commenced</label><input id="dayStart" type="date"></div>
+          <button class="btn" id="dayCalc" style="margin-top:10px">Calculate</button><div class="result" id="dayResult">Date commenced = Day 1</div>
+          <details class="evidence-details"><summary>Method</summary><div class="evidence-body"><p>The commencement date is counted as Day 1. This is a calendar-day aid only; verify the actual insertion/commencement time and local catheter-review/removal policy when clinically relevant.</p></div></details>
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <section id="viewMeds" class="view">
+    <div class="section-title"><div><h2>Medications</h2><p>APS-relevant dose references extracted from the two APKs you supplied.</p></div></div>
+    <div class="warning"><b>Reference only.</b> The source APKs may not represent the latest editions. Dose text has not been independently validated against your hospital formulary. Verify indication, route, age/weight, renal/hepatic function, interactions, maximum doses and local policy before prescribing.</div>
+    <div class="med-toolbar">
+      <div class="searchbox"><span>⌕</span><input id="medSearch" type="search" placeholder="Search analgesic, formulation or dose..."></div>
+      <select id="medCategory"><option value="">All categories</option></select>
+    </div>
+    <div class="muted small" id="medCount"></div>
+    <div id="medList" style="margin-top:10px"></div>
+  </section>
+</main>
+
+<nav class="bottomnav">
+  <button class="navbtn active" data-view="Today"><span class="ico">⌂</span>Today</button>
+  <button class="navbtn" data-view="Patients"><span class="ico">☷</span>Patients</button>
+  <button class="navbtn" data-view="Register"><span class="ico">＋</span>Register</button>
+  <button class="navbtn" data-view="Tools"><span class="ico">⌁</span>Tools</button>
+  <button class="navbtn" data-view="Meds"><span class="ico">Rx</span>Meds</button>
+</nav>
+
+<dialog id="patientDialog">
+  <div class="modalhead"><button class="iconbtn" id="closePatient">←</button><h3>Patient</h3><span id="detailRoundChip" class="chip"></span></div>
+  <div class="modalbody">
+    <div class="detail-head"><h2 id="detailName"></h2><div id="detailMeta" class="muted"></div></div>
+    <div id="detailGrid" class="detail-grid"></div>
+    <div class="field"><label>Remark</label><textarea id="detailRemark" rows="5"></textarea></div>
+    <div class="field" style="margin-top:12px"><label>Status</label>
+      <div class="status-choice">
+        <label><input type="radio" name="detailStatus" value="Continue review"> Continue review</label>
+        <label><input type="radio" name="detailStatus" value="Discharged"> Discharge APS</label>
+      </div>
+    </div>
+    <div class="form-actions" style="position:sticky;bottom:0;background:var(--surface);padding-top:12px">
+      <button class="btn secondary" id="savePatientBtn">Save</button>
+      <button class="btn" id="saveNextBtn">Save & next</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="settingsDialog">
+  <div class="modalhead"><button class="iconbtn" id="closeSettings">←</button><h3>Settings</h3></div>
+  <div class="modalbody">
+    <div class="detail-item"><span>Backend</span><strong>APS master Google Sheet · preconfigured</strong></div>
+    <div class="form-actions"><button class="btn danger" id="logoutBtn">Lock app</button></div>
+    <div class="note">The Apps Script Web App URL is hardcoded in this build, so no device setup is required. The shared APS password is still required to unlock each browser session.</div>
+  </div>
+</dialog>
+
+<div id="scaleScreen" class="scale-screen">
+  <div class="scale-head"><button class="iconbtn" id="closeScale">←</button><h2 id="scaleTitle">Pain scale</h2><button class="iconbtn" id="rotateScale">⟳</button></div>
+  <div id="scaleBody" class="scale-body"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="medications.js"></script>
+<script>
+const HARD_CODED_API_URL = 'https://script.google.com/macros/s/AKfycbztZL9dngPMuQxtOcewNcvk138BHA6VrpMNKJh-zZBaFveF-JP6oL0hBgBOHmtXk4bvZg/exec';
+const S = {
+  apiUrl: HARD_CODED_API_URL,
+  token: sessionStorage.getItem('apsToken') || '',
+  today: [],
+  active: [],
+  current: null,
+  viewMode: localStorage.getItem('apsViewModeV2') || 'census',
+  roundFilter: 'all',
+  docUrl: '',
+  currentScaleOrientation: 'landscape'
+};
+const $ = s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('show'),2600)}
+function natural(a,b){return String(a||'').localeCompare(String(b||''),undefined,{numeric:true,sensitivity:'base'})}
+function patientSort(a,b){return natural(a.Ward,b.Ward)||natural(a.Name,b.Name)||natural(a.RN,b.RN)}
+function isActive(p){const s=String(p.Status||p._status||'').trim().toLowerCase();return s==='new patient'||s==='continue review'}
+function isDischarged(p){return String(p.Status||p._status||'').toLowerCase()==='discharged'}
+function searchable(p){return ['Name','RN','Age','Sex','Race','Ward','Diagnosis','Operation','Mode','Date Commenced',"Doctor's name",'Remark','Status'].map(k=>p[k]||'').join(' ').toLowerCase()}
+async function api(action,data={}){
+  if(!S.apiUrl) throw new Error('Apps Script URL is not configured.');
+  let res;
+  try{
+    res=await fetch(S.apiUrl,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action,token:S.token,...data})});
+  }catch(e){throw new Error('Could not reach the APS backend. Check the Apps Script deployment URL, internet connection and Web App deployment permissions.')}
+  let out;
+  try{out=await res.json()}catch(e){throw new Error('The APS backend returned an unreadable response.')}
+  if(!out.ok){
+    if(/session expired/i.test(out.error||'')){lockApp();}
+    throw new Error(out.error||'APS backend error');
+  }
+  return out;
+}
+function lockApp(){
+  S.token='';sessionStorage.removeItem('apsToken');$('#gate').classList.remove('hidden');$('#passwordInput').value='';
+}
+async function login(){
+  const password=$('#passwordInput').value;
+  if(!password){toast('Enter the APS password');return}
+  $('#loginBtn').disabled=true; $('#loginBtn').textContent='Unlocking…';
+  try{
+    const out=await api('login',{password});
+    S.token=out.token;sessionStorage.setItem('apsToken',S.token);$('#gate').classList.add('hidden');$('#passwordInput').value='';await loadToday();
+  }catch(e){toast(e.message)}
+  finally{$('#loginBtn').disabled=false;$('#loginBtn').textContent='Unlock APS Rounds'}
+}
+function showView(name){
+  $$('.view').forEach(v=>v.classList.remove('active')); $('#view'+name).classList.add('active');
+  $$('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.view===name));
+  $('#appTitle').textContent=name==='Today'?'APS Rounds':name;
+  if(name==='Patients' && !S.active.length) loadActive();
+  if(name==='Meds') renderMeds();
+  window.scrollTo({top:0,behavior:'instant'});
+}
+async function loadToday(){
+  if(!S.token)return;
+  $('#todayContent').innerHTML='<div class="empty">Loading APS round…</div>';
+  try{
+    const out=await api('today');
+    S.today=(out.patients||[]).sort(patientSort);S.docUrl=out.googleDocUrl||'';
+    $('#openDocBtn').disabled=!S.docUrl;
+    renderToday();
+  }catch(e){$('#todayContent').innerHTML='<div class="empty">'+esc(e.message)+'</div>';toast(e.message)}
+}
+async function loadActive(){
+  if(!S.token)return;
+  $('#patientsContent').innerHTML='<div class="empty">Loading current APS patients…</div>';
+  try{const out=await api('patients');S.active=(out.patients||[]).sort(patientSort);renderActive()}catch(e){$('#patientsContent').innerHTML='<div class="empty">'+esc(e.message)+'</div>';toast(e.message)}
+}
+function filteredToday(){
+  let q=$('#todaySearch').value.trim().toLowerCase();
+  return S.today.filter(p=>{
+    if(q && !searchable(p).includes(q)) return false;
+    if(S.roundFilter==='pending' && p._roundCompleted) return false;
+    if(S.roundFilter==='done' && !p._roundCompleted) return false;
+    return true;
+  });
+}
+function renderToday(){
+  const total=S.today.length,done=S.today.filter(p=>p._roundCompleted).length,pending=total-done;
+  const active=S.today.filter(isActive).length,dis=S.today.filter(isDischarged).length;
+  $('#progDone').textContent=done;$('#progTotal').textContent=total;$('#statActive').textContent=active;$('#statPending').textContent=pending;$('#statDischarged').textContent=dis;
+  $('#progressFill').style.width=(total?Math.round(done/total*100):0)+'%';
+  $$('#viewModeSeg button').forEach(b=>b.classList.toggle('active',b.dataset.mode===S.viewMode));
+  const patients=filteredToday();
+  if(S.viewMode==='cards') renderCards($('#todayContent'),patients,true);
+  else if(S.viewMode==='list') renderList($('#todayContent'),patients,true);
+  else renderCensus($('#todayContent'),patients);
+}
+function wardGroups(patients){
+  const map={};patients.forEach(p=>{const w=(p.Ward||'Unspecified').trim()||'Unspecified';(map[w]??=[]).push(p)});
+  return Object.entries(map).sort((a,b)=>natural(a[0],b[0]));
+}
+function statusChip(p){const st=String(p.Status||p._status||'').trim();if(st.toLowerCase()==='discharged')return '<span class="chip danger">Discharged</span>';if(st.toLowerCase()==='new patient')return '<span class="chip warn">New patient</span>';return '<span class="chip good">Continue review</span>'}
+function cardHtml(p,round){
+  const status=statusChip(p);
+  const roundChip=round?(p._roundCompleted?'<span class="chip good">✓ Done</span>':'<span class="chip warn">● Pending</span>'):'';
+  return `<div class="card patient-card" data-key="${esc(p._key)}">
+    <div class="patient-top"><div><div class="patient-name">${esc(p.Name)}</div><div class="patient-meta">RN ${esc(p.RN||'—')} · ${esc(p.Age||'—')} ${esc(p.Sex||'')}</div></div><div class="chips">${roundChip}${status}</div></div>
+    <div class="chips">${p.Mode?`<span class="chip">${esc(p.Mode)}</span>`:''}${p['Date Commenced']?`<span class="chip">${esc(p['Date Commenced'])}</span>`:''}</div>
+    ${p.Operation?`<div class="patient-meta"><b>Operation:</b> ${esc(p.Operation)}</div>`:''}
+    ${p.Remark?`<div class="remark">${esc(p.Remark)}</div>`:'<div class="remark muted">No remark</div>'}
+  </div>`;
+}
+function renderCards(el,patients,round){
+  if(!patients.length){el.innerHTML='<div class="empty">No matching patients.</div>';return}
+  el.innerHTML=wardGroups(patients).map(([ward,ps])=>`<section class="ward"><div class="wardhead"><h3>${esc(ward)}</h3><span class="count">${ps.length}</span></div><div class="patient-grid">${ps.map(p=>cardHtml(p,round)).join('')}</div></section>`).join('');
+  bindPatientClicks(el);
+}
+function renderList(el,patients,round){
+  if(!patients.length){el.innerHTML='<div class="empty">No matching patients.</div>';return}
+  el.innerHTML=`<div class="compact-list">${patients.map(p=>`<div class="compact-row" data-key="${esc(p._key)}"><div class="wardlabel">${esc(p.Ward||'—')}</div><div><div class="n">${esc(p.Name)}</div><div class="m">RN ${esc(p.RN||'—')} · ${esc(p.Mode||'—')} ${p.Remark?'· '+esc(p.Remark):''}</div></div><div>${round?(p._roundCompleted?'<span class="chip good">Done</span>':'<span class="chip warn">Pending</span>'):statusChip(p)}</div></div>`).join('')}</div>`;
+  bindPatientClicks(el);
+}
+function renderCensus(el,patients){
+  const rows=wardGroups(patients).map(([ward,ps])=>{
+    const n=ps.filter(x=>String(x.Status||'').toLowerCase()==='new patient').length,c=ps.filter(x=>String(x.Status||'').toLowerCase()==='continue review').length,d=ps.filter(isDischarged).length,p=ps.filter(x=>!x._roundCompleted).length;
+    return `<tr><td><b>${esc(ward)}</b></td><td>${ps.length}</td><td>${n}</td><td>${c}</td><td>${d}</td><td>${p}</td></tr>`;
+  }).join('');
+  el.innerHTML=`<div class="tablewrap"><table><thead><tr><th>Ward</th><th>Total</th><th>New</th><th>Continue</th><th>Discharged</th><th>Pending</th></tr></thead><tbody>${rows||'<tr><td colspan="6">No patients</td></tr>'}</tbody></table></div>`;
+}
+function renderActive(){
+  let q=$('#patientSearch').value.trim().toLowerCase();
+  const ps=S.active.filter(p=>!q||searchable(p).includes(q));
+  renderCards($('#patientsContent'),ps,false);
+}
+function bindPatientClicks(el){el.querySelectorAll('[data-key]').forEach(n=>n.addEventListener('click',()=>openPatient(n.dataset.key)))}
+function openPatient(key){
+  const p=S.today.find(x=>x._key===key)||S.active.find(x=>x._key===key);if(!p)return;
+  S.current=p;$('#detailName').textContent=p.Name||'';$('#detailMeta').textContent=`${p.Ward||'Ward —'} · RN ${p.RN||'—'} · ${p.Age||'—'} ${p.Sex||''}`;
+  $('#detailRoundChip').textContent=p._roundCompleted?'✓ Done':'Pending';$('#detailRoundChip').className='chip '+(p._roundCompleted?'good':'warn');
+  const fields=['Race','Diagnosis','Operation','Mode','Date Commenced',"Doctor's name"];
+  $('#detailGrid').innerHTML=fields.filter(k=>p[k]).map(k=>`<div class="detail-item"><span>${esc(k)}</span><strong>${esc(p[k])}</strong></div>`).join('')||'<div class="muted small">No additional registration details.</div>';
+  $('#detailRemark').value=p.Remark||'';
+  const val=isDischarged(p)?'Discharged':'Continue review';document.querySelector(`input[name="detailStatus"][value="${val}"]`).checked=true;
+  $('#patientDialog').showModal();
+}
+async function saveCurrent(goNext){
+  if(!S.current)return;
+  const status=$('input[name="detailStatus"]:checked')?.value||'Continue review';
+  $('#savePatientBtn').disabled=true;$('#saveNextBtn').disabled=true;
+  try{
+    await api('savePatient',{recordKey:S.current._key,remark:$('#detailRemark').value,status});
+    const oldKey=S.current._key;toast('Saved to master sheet');$('#patientDialog').close();await loadToday();S.active=[];
+    if(goNext){
+      const sorted=S.today.slice().sort(patientSort);let idx=sorted.findIndex(p=>p._key===oldKey);let next=null;
+      for(let i=1;i<=sorted.length;i++){const p=sorted[(idx+i+sorted.length)%sorted.length];if(p&&!p._roundCompleted){next=p;break}}
+      if(next)openPatient(next._key);else toast('APS round complete');
+    }
+  }catch(e){toast(e.message)}
+  finally{$('#savePatientBtn').disabled=false;$('#saveNextBtn').disabled=false}
+}
+async function registerPatient(ev){
+  ev.preventDefault();const f=new FormData(ev.target);const patient=Object.fromEntries(f.entries());
+  if(patient.race==='__other__') patient.race=$('#raceOther').value.trim();
+  if(patient.ward==='__other__') patient.ward=$('#wardOther').value.trim();
+  if(patient.mode==='__other__') patient.mode=$('#modeOther').value.trim();
+  if(!patient.race||!patient.ward||!patient.mode){toast('Complete all required fields, including any Other value.');return}
+  const btn=ev.target.querySelector('button[type="submit"]');btn.disabled=true;btn.textContent='Registering…';
+  try{await api('register',{patient});toast('Patient registered');ev.target.reset();await loadToday();S.active=[];showView('Today')}
+  catch(e){toast(e.message)}
+  finally{btn.disabled=false;btn.textContent='Register patient'}
+}
+function nextPending(){
+  const p=S.today.slice().sort(patientSort).find(x=>!x._roundCompleted);
+  if(p)openPatient(p._key);else toast(S.today.length?'APS round complete':'No patients in today’s round');
+}
+
+/* Tools */
+const opioidPotency={Morphine:1,Oxycodone:1.5,Hydromorphone:5,Tapentadol:.4,Tramadol:.1,Codeine:.1,Dihydrocodeine:.1};
+function initOpioids(){for(const id of ['opFrom','opTo']){$('#'+id).innerHTML=Object.keys(opioidPotency).map(n=>`<option>${n}</option>`).join('')}$('#opTo').value='Oxycodone'}
+function calcOpioid(){const from=$('#opFrom').value,to=$('#opTo').value,d=+$('#opDose').value,red=+$('#opReduction').value;if(!(d>=0)){return}const ome=d*opioidPotency[from],equiv=ome/opioidPotency[to],start=equiv*(1-red);$('#opResult').innerHTML=`OME ≈ <b>${ome.toFixed(1)} mg oral morphine/24 h</b><br>Calculated ${esc(to)} equivalent ≈ <b>${equiv.toFixed(1)} mg/24 h</b><br>${red?`After ${red*100}% reduction: <b>${start.toFixed(1)} mg/24 h</b>`:'No switch reduction applied.'}`}
+function val(id){return parseFloat($('#'+id).value)}
+function simpleResult(id,text){$('#'+id).innerHTML=text}
+function calcBMI(){let w=val('bmiW'),h=val('bmiH')/100;if(w>0&&h>0)simpleResult('bmiResult',`BMI = <b>${(w/(h*h)).toFixed(1)} kg/m²</b>`)}
+function ibw(sex,hcm){let inches=hcm/2.54,extra=Math.max(0,inches-60),base=sex==='Female'?45.5:50;return base+2.3*extra}
+function calcIBW(){let h=val('ibwH'),sex=$('#ibwSex').value;if(h>0)simpleResult('ibwResult',`IBW ≈ <b>${ibw(sex,h).toFixed(1)} kg</b>${h<152.4?'<br><span class="small">Height is below 5 ft; interpret cautiously.</span>':''}`)}
+function calcAj(){let a=val('ajActual'),i=val('ajIbw');if(a>0&&i>0)simpleResult('ajResult',`Adjusted body weight ≈ <b>${(i+.4*(a-i)).toFixed(1)} kg</b>`)}
+function calcCG(){let age=val('cgAge'),w=val('cgW'),cru=val('cgCr');if(age>0&&w>0&&cru>0){let cr=cru/88.4,cl=(140-age)*w/(72*cr);if($('#cgSex').value==='Female')cl*=.85;simpleResult('cgResult',`Cockcroft–Gault CrCl ≈ <b>${cl.toFixed(1)} mL/min</b>`)}}
+function calcCKDEPI(){
+  const age=val('ckdAge'),cru=val('ckdCr'),sex=$('#ckdSex').value,cys=val('ckdCys');
+  if(!(age>=18&&cru>0))return;
+  const female=sex==='Female',scr=cru/88.4,k=female?0.7:0.9,alpha=female?-.241:-.302;
+  const ecr=142*Math.pow(Math.min(scr/k,1),alpha)*Math.pow(Math.max(scr/k,1),-1.2)*Math.pow(.9938,age)*(female?1.012:1);
+  let out=`2021 CKD-EPI eGFRcr ≈ <b>${ecr.toFixed(1)} mL/min/1.73 m²</b>`;
+  if(cys>0){
+    const a2=female?-.219:-.144;
+    const comb=135*Math.pow(Math.min(scr/k,1),a2)*Math.pow(Math.max(scr/k,1),-.544)*Math.pow(Math.min(cys/.8,1),-.323)*Math.pow(Math.max(cys/.8,1),-.778)*Math.pow(.9961,age)*(female?0.963:1);
+    out=`2021 CKD-EPI eGFRcr-cys ≈ <b>${comb.toFixed(1)} mL/min/1.73 m²</b><br><span class="small">Creatinine-only estimate: ${ecr.toFixed(1)} mL/min/1.73 m²</span>`;
+  }else out+=`<br><span class="small">Add cystatin C when available for the more accurate combined estimate, especially near a critical decision threshold.</span>`;
+  if(age<=25)out+=`<br><span class="small">Age 18–25: also compare with CKiD U25.</span>`;
+  simpleResult('ckdResult',out);
+}
+function calcPed(){
+  const age=val('pedAge'),hcm=val('pedH'),cru=val('pedCr'),sex=$('#pedSex').value;
+  if(!(age>=1&&age<=25&&hcm>0&&cru>0))return;
+  const female=sex==='Female'; let kappa;
+  if(age<12)kappa=(female?36.1:39.0)*Math.pow(1.008,age-12);
+  else if(age<18)kappa=female?36.1*Math.pow(1.023,age-12):39.0*Math.pow(1.045,age-12);
+  else kappa=female?41.4:50.8;
+  const scr=cru/88.4,g=kappa*((hcm/100)/scr);
+  let out=`CKiD U25 eGFRcr ≈ <b>${g.toFixed(1)} mL/min/1.73 m²</b>`;
+  if(age>=18)out+=`<br><span class="small">Age 18–25: compare with the adult CKD-EPI estimate.</span>`;
+  simpleResult('pedResult',out);
+}
+function calcDay(){const v=$('#dayStart').value;if(!v)return;const start=new Date(v+'T00:00:00'),today=new Date();today.setHours(0,0,0,0);const d=Math.floor((today-start)/86400000)+1;simpleResult('dayResult',d>0?`APS / catheter day = <b>Day ${d}</b>`:'Commencement date is in the future.')}
+async function lockOrientation(type){try{if(screen.orientation&&screen.orientation.lock)await screen.orientation.lock(type)}catch(e){}}
+async function openScale(kind){
+  $('#scaleScreen').classList.add('open');S.currentScaleOrientation='landscape';await lockOrientation('landscape');
+  if(kind==='nrs')renderNRS();if(kind==='faces')renderFaces();if(kind==='flacc')renderFLACC();
+}
+function closeScale(){try{screen.orientation&&screen.orientation.unlock&&screen.orientation.unlock()}catch(e){}$('#scaleScreen').classList.remove('open')}
+function renderNRS(){$('#scaleTitle').textContent='Numeric Rating Scale (NRS)';$('#scaleBody').innerHTML=`<div style="width:100%;overflow:auto"><div class="nrs">${[0,1,2,3,4,5,6,7,8,9,10].map(n=>`<button data-n="${n}">${n}</button>`).join('')}</div><div class="flacc-total" id="nrsSelected">Select pain score</div></div>`;$$('.nrs button').forEach(b=>b.onclick=()=>{$$('.nrs button').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');$('#nrsSelected').textContent='NRS '+b.dataset.n+'/10'})}
+function renderFaces(){const faces=[['🙂',0],['😐',2],['🙁',4],['😣',6],['😫',8],['😭',10]];$('#scaleTitle').textContent='Faces pain assessment aid';$('#scaleBody').innerHTML=`<div style="width:100%;overflow:auto"><div class="faces">${faces.map(([e,n])=>`<button class="facebtn" data-n="${n}"><span class="faceemoji">${e}</span><strong>${n}</strong><div class="small muted">/10</div></button>`).join('')}</div><div class="flacc-total" id="faceSelected">Select the face that best matches the patient's pain</div><div class="note" style="text-align:center">Generic visual faces aid; not presented as a licensed branded faces instrument.</div></div>`;$$('.facebtn').forEach(b=>b.onclick=()=>{$$('.facebtn').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');$('#faceSelected').textContent='Selected '+b.dataset.n+'/10'})}
+const flacc=[
+ ['Face','Relaxed / neutral','Occasional grimace or withdrawn','Frequent/constant frown, clenched jaw or quivering chin'],
+ ['Legs','Normal / relaxed','Restless or tense','Kicking or legs drawn up'],
+ ['Activity','Quiet, normal movement','Squirming, shifting or tense','Arched, rigid or jerking'],
+ ['Cry','No cry','Moans/whimpers; intermittent complaint','Persistent crying/screaming or frequent complaint'],
+ ['Consolability','Content / relaxed','Reassured by touch/talking/distraction','Difficult to console']
+];
+function renderFLACC(){$('#scaleTitle').textContent='FLACC score';$('#scaleBody').innerHTML=`<div style="width:100%;overflow:auto"><div class="flacc-table">${flacc.map((r,ri)=>`<div class="flacc-row"><div class="flacc-label">${r[0]}</div>${[0,1,2].map(s=>`<button class="flacc-option" data-r="${ri}" data-s="${s}"><b>${s}</b><br>${esc(r[s+1])}</button>`).join('')}</div>`).join('')}</div><div class="flacc-total">FLACC <span id="flaccTotal">0</span>/10</div></div>`;const scores=[0,0,0,0,0];$$('.flacc-option').forEach(b=>b.onclick=()=>{const r=+b.dataset.r,s=+b.dataset.s;scores[r]=s;$$(`.flacc-option[data-r="${r}"]`).forEach(x=>x.classList.remove('selected'));b.classList.add('selected');$('#flaccTotal').textContent=scores.reduce((a,b)=>a+b,0)})}
+
+/* Medications */
+function initMeds(){const cats=[...new Set((window.APS_MEDICATIONS||[]).map(x=>x.category))].sort();$('#medCategory').innerHTML='<option value="">All categories</option>'+cats.map(c=>`<option>${esc(c)}</option>`).join('')}
+function renderMeds(){
+  const q=$('#medSearch').value.trim().toLowerCase(),cat=$('#medCategory').value;
+  const all=window.APS_MEDICATIONS||[];
+  const filtered=all.filter(m=>{
+    if(cat&&m.category!==cat)return false;
+    if(!q)return true;
+    const blob=[m.name,m.category,...m.blue.flatMap(x=>[x.name,x.dose,x.indication]),...m.frank.flatMap(x=>[x.name,x.dose])].join(' ').toLowerCase();
+    return blob.includes(q);
+  });
+  $('#medCount').textContent=`${filtered.length} medication groups`;
+  $('#medList').innerHTML=filtered.map(m=>`<details class="card med-card">
+    <summary><div><div class="medname">${esc(m.name)}</div><div class="small muted">${esc(m.category)}</div></div><span class="chip">${m.blue.length} Blue Book · ${m.frank.length} Frank Shann</span></summary>
+    <div class="source-block"><h4>Blue Book+ — supplied APK</h4>${m.blue.length?m.blue.map(x=>`<div class="dose-entry"><strong>${esc(x.name)}</strong><div>${x.dose?esc(x.dose):'<span class="source-missing">No dosage text parsed for this formulation.</span>'}</div></div>`).join(''):'<div class="source-missing">No matching Blue Book+ entry found in the supplied APK.</div>'}</div>
+    <div class="source-block"><h4>Frank Shann DrugDoses — supplied APK</h4>${m.frank.length?m.frank.map(x=>`<div class="dose-entry"><strong>${esc(x.name)}</strong><div>${esc(x.dose)}</div></div>`).join(''):'<div class="source-missing">No matching Frank Shann entry found in the supplied APK.</div>'}</div>
+  </details>`).join('')||'<div class="empty">No medications match your search.</div>';
+}
+
+
+function bindOtherSelect(selectId,inputId){
+  const sel=$('#'+selectId),inp=$('#'+inputId);
+  const sync=()=>{const on=sel.value==='__other__';inp.classList.toggle('hidden',!on);inp.required=on;if(!on)inp.value=''};
+  sel.addEventListener('change',sync);sync();
+}
+
+/* Events */
+$('#loginBtn').onclick=login;$('#passwordInput').addEventListener('keydown',e=>{if(e.key==='Enter')login()});
+$$('.navbtn').forEach(b=>b.onclick=()=>showView(b.dataset.view));
+$('#refreshBtn').onclick=()=>{const a=document.querySelector('.view.active').id;if(a==='viewPatients')loadActive();else loadToday()};
+$('#patientsRefresh').onclick=loadActive;$('#patientSearch').oninput=renderActive;$('#todaySearch').oninput=renderToday;
+$$('#viewModeSeg button').forEach(b=>b.onclick=()=>{S.viewMode=b.dataset.mode;localStorage.setItem('apsViewModeV2',S.viewMode);renderToday()});
+$$('#roundFilterSeg button').forEach(b=>b.onclick=()=>{S.roundFilter=b.dataset.filter;$$('#roundFilterSeg button').forEach(x=>x.classList.toggle('active',x===b));renderToday()});
+$('#openDocBtn').onclick=()=>{if(S.docUrl)window.open(S.docUrl,'_blank','noopener')};
+$('#nextPendingBtn').onclick=nextPending;
+$('#closePatient').onclick=()=>$('#patientDialog').close();$('#savePatientBtn').onclick=()=>saveCurrent(false);$('#saveNextBtn').onclick=()=>saveCurrent(true);
+$('#registrationForm').onsubmit=registerPatient;$('#registrationForm').addEventListener('reset',()=>setTimeout(()=>{['raceOther','wardOther','modeOther'].forEach(id=>{$('#'+id).classList.add('hidden');$('#'+id).required=false})},0));
+$('#settingsBtn').onclick=()=>$('#settingsDialog').showModal();$('#closeSettings').onclick=()=>$('#settingsDialog').close();
+$('#logoutBtn').onclick=async()=>{try{if(S.token)await api('logout')}catch(e){}$('#settingsDialog').close();lockApp()};
+$$('[data-scale]').forEach(b=>b.onclick=()=>openScale(b.dataset.scale));$('#closeScale').onclick=closeScale;$('#rotateScale').onclick=async()=>{S.currentScaleOrientation=S.currentScaleOrientation==='landscape'?'portrait':'landscape';await lockOrientation(S.currentScaleOrientation)};
+$('#orientationInfo').onclick=()=>toast('The app requests landscape when opening a pain scale. Support depends on the browser/device; use the rotate button if supported.');
+$('#opCalc').onclick=calcOpioid;$('#bmiCalc').onclick=calcBMI;$('#ibwCalc').onclick=calcIBW;$('#ajCalc').onclick=calcAj;$('#cgCalc').onclick=calcCG;$('#ckdCalc').onclick=calcCKDEPI;$('#pedCalc').onclick=calcPed;$('#dayCalc').onclick=calcDay;
+$('#medSearch').oninput=renderMeds;$('#medCategory').onchange=renderMeds;
+
+function bootstrap(){
+  bindOtherSelect('raceSelect','raceOther');bindOtherSelect('wardSelect','wardOther');bindOtherSelect('modeSelect','modeOther');
+  initOpioids();initMeds();renderMeds();
+  const now=new Date();$('#appSubtitle').textContent=now.toLocaleDateString(undefined,{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+  if(S.token&&S.apiUrl){$('#gate').classList.add('hidden');loadToday()}
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+bootstrap();
+</script>
+</body>
+</html>
